@@ -18,7 +18,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // body-parser
 app.use(express.json({ limit: "10mb" }));
-app.use(cors());
+app.use(cors()); // CORS 처리.
 
 app.listen(3000, () => {
   console.log("npm install");
