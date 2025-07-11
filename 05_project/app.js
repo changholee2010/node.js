@@ -52,8 +52,8 @@ app.get("/download/:productId/:fileName", (req, res) => {
 });
 
 // 업로드.
-app.post("/upload/:filename/:pid", (req, res) => {
-  const { filename, pid } = req.params; // {filename: 'sample.jpg', product: 3}
+app.post("/upload/:filename/:pid/:type", (req, res) => {
+  const { filename, pid, type } = req.params; // {filename: 'sample.jpg', product: 3}
   // const filePath = `${__dirname}/uploads/${pid}/${filename}`; // ../05_project/uploads/sample.jpg
   let productDir = path.join(uploadDir, pid);
   if (!fs.existsSync(productDir)) {
@@ -66,7 +66,11 @@ app.post("/upload/:filename/:pid", (req, res) => {
   try {
     let base64Data = req.body.data;
     let data = base64Data.slice(base64Data.indexOf(";base64,") + 8);
-    fs.writeFile(filePath, data, "base64", (err) => {
+    fs.writeFile(filePath, data, "base64", async (err) => {
+      // pid, type, filename => db insert.
+      await query("productImageInsert", [
+        { product_id: pid, type: type, path: filename },
+      ]);
       if (err) {
         console.error(err);
         return res.status(500).send("error");
