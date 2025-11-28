@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button onclick="addUser()">등록</button>
+    <script>
+      console.log(
+        "LgX8MExHWs8mJVyxv7ONV6yqjAlCWjXeJ+JrM9/K9tdYe+LNmp67eCQsZWKLYpLkFqOj5bogoCORgl+AVZhmYA=="
+          .length
+      );
+      function addUser() {
+        // post요청.
+        fetch("http://localhost:3000/user", {
+          method: "post",
+          headers: { "Content-Type": "application/json;charset=utf-8" },
+          body: JSON.stringify({
+            id: "user05",
+            pw: "5555",
+            name: "홍길동(5555)",
+          }),
+        })
+          .then((resp) => resp.text())
+          .then((result) => {
+            console.log(result);
+          })
+          .catch((err) => console.log(err));
+      }
+    </script>
+  </body>
+</html>
