@@ -19,36 +19,69 @@
       </thead>
       <tbody id="blist"></tbody>
     </table>
-    <img id="myImg" />
+
     <script>
-      async function getImage(filename) {
-        const resp = await fetch("board/image/" + filename);
-        const result = await resp.json();
-        return result.file;
+      // HTML escape (XSS 방지)
+      function escapeHtml(str) {
+        if (!str) return "";
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       }
 
-      // fetch활용.
+      // 이미지 요청 함수
+      async function getImage(filename) {
+        try {
+          const resp = await fetch("board/image/" + filename);
+          if (!resp.ok) return null;
+
+          const result = await resp.json();
+          return result.file; // Base64 문자열
+        } catch (err) {
+          console.warn("이미지 로딩 실패:", filename, err);
+          return null;
+        }
+      }
+
+      // 게시글 목록 가져오기
       fetch("board/boards")
         .then((resp) => resp.json())
-        .then((result) => {
-          let innerHTML = "";
-          let tbody = document.querySelector("#blist");
-          // data.
-          result.forEach((elem) => {
-            let tr = document.createElement("tr");
-            tr.innerHTML = `<tr>
-                                <td>${elem.board_id}</td>
-                                <td>${elem.title}</td>
-                                <td>${elem.author}</td>
-                                <td>${elem.create_date}</td>
-                              </tr>
+        .then(async (result) => {
+          const tbody = document.querySelector("#blist");
+
+          for (let elem of result) {
+            const tr = document.createElement("tr");
+
+            // 기본 텍스트 내용
+            const id = escapeHtml(String(elem.board_id));
+            const title = escapeHtml(elem.title);
+            const author = escapeHtml(elem.author);
+            const date = escapeHtml(elem.create_date);
+
+            // 이미지 처리
+            let imgTag = "";
+            if (elem.images) {
+              const base64 = await getImage(elem.images);
+              if (base64) {
+                imgTag = `<img src="data:image/*;base64,${base64}" width="80" />`;
+              }
+            }
+
+            tr.innerHTML = `
+              <td>${id}</td>
+              <td>${title}</td>
+              <td>${author}</td>
+              <td>${date}</td>
+              <td>${imgTag}</td>
             `;
-            let image = "data:image/png;base64," + data;
+
             tbody.appendChild(tr);
-            getImage(elem.images).then((data) => {});
-          });
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => console.error("게시글 로딩 오류:", err));
     </script>
   </body>
 </html>

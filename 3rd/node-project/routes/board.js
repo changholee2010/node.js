@@ -37,72 +37,106 @@ router.get("/boards", async (req, res) => {
 // 글등록정보(제목,내용,작성자,images(파일명))
 // 파일등록(uploads/파일)
 router.post("/board", async (req, res) => {
-  const contentType = req.headers["content-type"];
+  const contentType = req.headers["content-type"] || "";
   let renameFile = "";
-  // multipart/form-data
-  if (contentType.includes("multipart/form-data")) {
-    // multer 모듈.
-    const multerFnc = upload.single("img");
-    multerFnc(req, res, async (err) => {
-      // err callback.
-      if (err) {
-        console.log(err);
-        res.json({ retCode: "NG", retVal: "업로드처리중 예외발생." });
-      }
-      console.log(req.file.filename);
-      const { title, content, author } = req.body;
-      // db insert.
-      let rows = await pool.execute(
-        `insert into board set title=?
-                          ,content=?
-                          ,author=?
-                          ,images=?`,
-        [title, content, author, req.file.filename]
-      );
-      if (rows[0].affectedRows == 1) {
-        res.json({
-          retCode: "OK",
-          retVal: `(글번호 ${rows[0].insertId})로 등록됨.`,
+
+  try {
+    // -------------------------------------------------------
+    // 1) multipart/form-data  (이미지 + form-data)
+    // -------------------------------------------------------
+    if (contentType.includes("multipart/form-data")) {
+      // multer 실행
+      await new Promise((resolve, reject) => {
+        upload.single("img")(req, res, (err) => {
+          if (err) return reject(err);
+          resolve();
         });
-      } else {
-        resjson({ retCode: "NG", retVal: "처리중 예외발생." }); // 텍스트, html, json
-      }
-    });
-  } // end of if.
-  // application/json
-  else if (contentType.includes("application/json")) {
-    const { title, content, author, filename, base64 } = req.body;
-    // uploads에 파일 생성.
-    if (filename) {
-      try {
-        renameFile = Date.now() + "-" + filename;
-        fs.writeFileSync(
-          "uploads/" + renameFile,
-          Buffer.from(base64, "base64")
-        );
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    console.log(title, content, author, filename);
-    // db insert.
-    let rows = await pool.execute(
-      `insert into board set title=?
-                          ,content=?
-                          ,author=?
-                          ,images=?`,
-      [title, content, author, renameFile]
-    );
-    if (rows[0].affectedRows == 1) {
-      res.json({
-        retCode: "OK",
-        retVal: `(글번호 ${rows[0].insertId})로 등록됨.`,
       });
-    } else {
-      resjson({ retCode: "NG", retVal: "처리중 예외발생." }); // 텍스트, html, json
+
+      const { title, content, author } = req.body;
+
+      // 업로드된 파일이 없는 경우 대비
+      if (req.file) {
+        renameFile = req.file.filename;
+      } else {
+        renameFile = ""; // 또는 null 로 저장해도 됨
+      }
+
+      // DB insert
+      const [rows] = await pool.execute(
+        `INSERT INTO board (title, content, author, images)
+         VALUES (?, ?, ?, ?)`,
+        [title, content, author, renameFile]
+      );
+
+      return res.json({
+        retCode: "OK",
+        retVal: `(글번호 ${rows.insertId})로 등록됨.`,
+      });
     }
-  } // end of else if.
-}); // end of router.post.
+
+    // -------------------------------------------------------
+    // 2) application/json  (base64 이미지 포함)
+    // -------------------------------------------------------
+    else if (contentType.includes("application/json")) {
+      const { title, content, author, filename, base64 } = req.body;
+
+      // base64 이미지가 있는 경우 저장
+      if (filename && base64) {
+        // 확장자 추출 (예: test.png → .png)
+        const ext = filename.includes(".")
+          ? filename.substring(filename.lastIndexOf("."))
+          : "";
+
+        renameFile = `${Date.now()}${ext}`;
+
+        try {
+          fs.writeFileSync(
+            "uploads/" + renameFile,
+            Buffer.from(base64, "base64")
+          );
+        } catch (err) {
+          console.log("파일 저장 실패:", err);
+          return res.json({
+            retCode: "NG",
+            retVal: "파일 저장 실패",
+          });
+        }
+      } else {
+        renameFile = ""; // 파일이 없는 경우
+      }
+
+      // DB insert
+      const [rows] = await pool.execute(
+        `INSERT INTO board (title, content, author, images)
+         VALUES (?, ?, ?, ?)`,
+        [title, content, author, renameFile]
+      );
+
+      return res.json({
+        retCode: "OK",
+        retVal: `(글번호 ${rows.insertId})로 등록됨.`,
+      });
+    }
+
+    // -------------------------------------------------------
+    // 3) 지원하지 않는 Content-Type
+    // -------------------------------------------------------
+    else {
+      return res.json({
+        retCode: "NG",
+        retVal: "지원하지 않는 Content-Type 입니다.",
+      });
+    }
+  } catch (err) {
+    console.error("POST /board 처리 중 오류:", err);
+
+    return res.json({
+      retCode: "NG",
+      retVal: "서버 내부 오류 발생",
+    });
+  }
+});
 
 // 3) 게시글 수정(board)
 router.put("/board", async (req, res) => {

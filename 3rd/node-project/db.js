@@ -3,7 +3,7 @@ const mysql = require("mysql2/promise");
 const crypto = require("crypto");
 
 const pool = mysql.createPool({
-  host: "192.168.0.45",
+  host: "192.168.0.19",
   user: "dev01",
   password: "dev01",
   database: "dev",
