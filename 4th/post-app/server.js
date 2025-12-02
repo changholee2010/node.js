@@ -1,6 +1,7 @@
 // server.js
 const express = require("express");
-const postService = require("./service/post.service");
+const boardService = require("./service/board.service");
+const pool = require("./config/db.config"); // DB 연결 테스트용으로 사용
 
 const app = express();
 const PORT = 3000;
@@ -8,43 +9,104 @@ const PORT = 3000;
 // 미들웨어 설정
 app.use(express.json()); // JSON 요청 본문 파싱
 
-app.get("/", async (req, res) => {
-  res.send("/ 경로호출됨.");
-});
+// --- API 라우트 정의 ---
 
-// 💡 게시글 목록을 조회하는 라우트 (Presentation Layer)
-app.get("/posts", async (req, res) => {
+// 1. 💡 [POST] 게시글 생성: /boards
+app.post("/boards", async (req, res) => {
   try {
-    // 비즈니스 계층의 함수를 호출하여 데이터를 가져옵니다.
-    const posts = await postService.getAllPosts();
-    res.status(200).json(posts);
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to fetch posts", error: error.message });
-  }
-});
-
-// 💡 새 게시글을 생성하는 라우트 (Presentation Layer)
-app.post("/posts", async (req, res) => {
-  try {
-    const { title, content } = req.body;
-    // 비즈니스 계층의 함수를 호출하여 로직을 수행합니다.
-    const newPost = await postService.createNewPost(title, content);
+    const { title, content, author, images } = req.body;
+    const newPost = await boardService.createPost(
+      title,
+      content,
+      author,
+      images
+    );
     res.status(201).json({
-      message: "Post created successfully",
+      message: "게시글이 성공적으로 생성되었습니다.",
       data: newPost,
     });
   } catch (error) {
-    console.error("Error creating post:", error);
-    // 클라이언트 입력 오류인 경우 400 Bad Request 반환
-    if (error.message.includes("must be provided")) {
-      return res.status(400).json({ message: error.message });
-    }
+    console.error("Error creating post:", error.message);
+    res.status(400).json({
+      message: "게시글 생성 실패: 유효하지 않은 입력값",
+      error: error.message,
+    });
+  }
+});
+
+// 2. 💡 [GET] 전체 목록 및 검색: /boards?search={keyword}
+app.get("/boards", async (req, res) => {
+  console.log(req.query.search);
+  try {
+    // 쿼리 파라미터에서 검색 키워드를 가져옵니다.
+    const searchKeyword = req.query.search;
+    const posts = await boardService.getPosts(searchKeyword);
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error.message);
     res
       .status(500)
-      .json({ message: "Failed to create post", error: error.message });
+      .json({ message: "게시글 목록 조회 실패", error: error.message });
+  }
+});
+
+// 3. 💡 [GET] 단건 조회: /boards/:id
+app.get("/boards/:id", async (req, res) => {
+  try {
+    const board_id = parseInt(req.params.id);
+    const post = await boardService.getPostById(board_id);
+    res.status(200).json(post);
+  } catch (error) {
+    console.error("Error fetching post:", error.message);
+    // 게시글을 찾지 못한 경우 404 응답
+    if (error.message.includes("not found")) {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "게시글 조회 실패", error: error.message });
+  }
+});
+
+// 4. 💡 [PUT] 게시글 수정: /boards/:id
+app.put("/boards/:id", async (req, res) => {
+  try {
+    const board_id = parseInt(req.params.id);
+    const { title, content, images } = req.body;
+
+    await boardService.updatePost(board_id, title, content, images);
+    res
+      .status(200)
+      .json({ message: `게시글 ID ${board_id}가 성공적으로 수정되었습니다.` });
+  } catch (error) {
+    console.error("Error updating post:", error.message);
+    // 유효성 검사 실패 또는 게시글을 찾지 못한 경우 400/404 응답
+    if (
+      error.message.includes("required") ||
+      error.message.includes("no changes")
+    ) {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.message.includes("not found")) {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "게시글 수정 실패", error: error.message });
+  }
+});
+
+// 5. 💡 [DELETE] 게시글 삭제: /boards/:id
+app.delete("/boards/:id", async (req, res) => {
+  try {
+    const board_id = parseInt(req.params.id);
+    await boardService.deletePost(board_id);
+    res
+      .status(200)
+      .json({ message: `게시글 ID ${board_id}가 성공적으로 삭제되었습니다.` });
+  } catch (error) {
+    console.error("Error deleting post:", error.message);
+    // 게시글을 찾지 못한 경우 404 응답
+    if (error.message.includes("not found")) {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "게시글 삭제 실패", error: error.message });
   }
 });
 

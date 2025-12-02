@@ -30,6 +30,13 @@ class PostService {
     const newPostId = await postRepository.create(title, content, author);
     return { id: newPostId, title, content, author };
   }
+
+  // 글 수정하는 함수
+  async modifyPost(id, title, content) {
+    if (!title || !content || !id) {
+      throw new Error("Title and content must be provided.");
+    }
+  }
 }
 
 module.exports = new PostService();

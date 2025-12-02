@@ -28,6 +28,15 @@ class PostRepository {
     // 삽입된 레코드의 ID 반환
     return result.insertId;
   }
+
+  // 수정함수
+  async modify(id, title, content) {
+    const [result] = await pool.query(
+      `update board set title = ?, content = ? where board_id = ?`,
+      [id, title, content]
+    );
+    return result.affectedRows;
+  }
 }
 
 module.exports = new PostRepository();

@@ -3,7 +3,7 @@ const mysql = require("mysql2/promise");
 
 // 💡 MySQL 연결 풀 설정 (실제 환경에 맞게 정보를 수정해야 합니다.)
 const pool = mysql.createPool({
-  host: "192.168.0.45",
+  host: "192.168.0.19", //45, 19
   user: "dev01", // 사용자 이름으로 변경
   password: "dev01", // 비밀번호로 변경
   database: "dev", // 데이터베이스 이름으로 변경
