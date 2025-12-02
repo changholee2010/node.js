@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
+const path = require("path");
 
 const userRoute = require("./routes/users"); // 회원정보.
 const boardRoute = require("./routes/board"); // 게시글정보.
@@ -39,6 +40,13 @@ app.get("/index", (req, res) => {
       }, "<ul>");
     res.send(html + "</ul>");
   });
+});
+
+app.get("/file/:filename", async (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(__dirname, "/uploads/", filename);
+  console.log(filePath);
+  res.sendFile(filePath);
 });
 
 // 서버실행.
