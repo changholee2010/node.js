@@ -4,7 +4,7 @@
 async function run() {
   let data = 10;
 
-  let result1 = await new Promise(function (resolve) {
+  await new Promise(function (resolve) {
     setTimeout(() => {
       console.log("1번째");
       data += 5;
@@ -12,9 +12,9 @@ async function run() {
       resolve(data); // then 메소드 호출.
     }, 2000);
   });
-  console.log(`result1=> ${result1}`);
+  // console.log(`result1=> ${result1}`);
 
-  let result2 = await new Promise(function (resolve) {
+  await new Promise(function (resolve) {
     setTimeout(() => {
       console.log("2번째");
       data *= 2;
@@ -22,7 +22,7 @@ async function run() {
       resolve(data); // then 메소드 호출.
     }, 3000);
   });
-  console.log(`result2=> ${result2}`);
+  // console.log(`result2=> ${result2}`);
 
   let result3 = await new Promise(function (resolve) {
     setTimeout(() => {

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button>Post요청</button>
+    <script>
+      document.querySelector("button").addEventListener("click", (e) => {
+        // 서버에 페이지요청.
+        fetch("http://localhost:3000/posts/1", {
+          method: "delete", // get:전송데이터 header저장 post: body저장.
+          // headers: { "Content-Type": "application/json" },
+          // body: JSON.stringify({ title: "등록연습1111", author: "user11" }),
+        })
+          .then((resp) => resp.json())
+          .then((result) => console.log(result));
+      });
+    </script>
+  </body>
+</html>

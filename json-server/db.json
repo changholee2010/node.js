@@ -1,0 +1,31 @@
+{
+  "posts": [
+    {
+      "id": "1",
+      "title": "등록연습",
+      "author": "user99"
+    },
+    {
+      "id": "2",
+      "title": "등록연습2",
+      "author": "user22"
+    }
+  ],
+  "comments": [
+    {
+      "id": "1",
+      "body": "1번글 댓글1",
+      "postId": 1
+    },
+    {
+      "id": "2",
+      "body": "1번글 댓글2",
+      "postId": 1
+    },
+    {
+      "id": "3",
+      "body": "2번글 댓글2",
+      "postId": 2
+    }
+  ]
+}
