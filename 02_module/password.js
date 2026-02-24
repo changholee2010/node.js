@@ -12,7 +12,7 @@ async function createPassword() {
         console.log("error=>", err);
         reject(err);
       }
-      // console.log(buf.toString("base64"));
+      console.log(buf.toString("base64"));
       resolve(buf.toString("base64")); // salt변수에 저장.
     });
   });
