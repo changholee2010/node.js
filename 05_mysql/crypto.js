@@ -6,7 +6,7 @@ require("dotenv").config();
 function createPassword(plainTxt) {
   const salt = process.env.MYSQL_SALT;
   const passwd = crypto.pbkdf2Sync(plainTxt, salt, 100000, 64, "sha512");
-  console.log(passwd.toString("base64"));
+  // console.log(passwd.toString("base64"));
   return passwd.toString("base64"); // 암호화.
 }
 

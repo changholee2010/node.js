@@ -1,11 +1,14 @@
 // app.js
 const express = require("express");
+const path = require("path");
 // .env 환경변수.
 require("dotenv").config();
 
 const mysql = require("./index");
 const encrypto = require("./crypto");
 const nodemailer = require("./nodemailer");
+const { upload, upload2 } = require("./multer");
+const { excel_run } = require("./excel");
 
 // express 인스턴스.
 const app = express();
@@ -66,7 +69,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 // 6.메일발송.
-app.post("/api/mail", async (req, res) => {
+app.post("/api/mail", upload2.single("myfile"), async (req, res) => {
   const { from, to, subject, text } = req.body;
 
   // multi 라인으로 변경.
@@ -75,9 +78,50 @@ app.post("/api/mail", async (req, res) => {
     .map((elem) => `<p>${elem}</p>`)
     .join("");
 
-  const result = await nodemailer.send({ from, to, subject, html });
+  // 메일정보. 파일첨부 여부에 따라 처리.
+  let attachments;
+  if (req.file == undefined) {
+    attachments = null;
+  } else {
+    attachments = [
+      {
+        filename: req.file.filename,
+        path: req.file.path, //path.join(__dirname, req.file.destination, req.file.filename),
+      },
+    ];
+  }
 
-  res.json(result);
+  const postData = {
+    from,
+    to,
+    subject,
+    html,
+    attachments,
+  };
+
+  const result = await nodemailer.send(postData);
+  if (result.messageId) {
+    res.json({ retCode: "OK" });
+  } else {
+    res.json({ retCode: "NG" });
+  }
+  // res.json(result);
+  // res.send("<p>메일발송성공</p>");
+});
+
+// 엑셀파일 첨부 후 db insert.
+app.post("/api/excel_upload", upload2.single("myFile"), async (req, res) => {
+  // 업로드 처리 시 성공/실패 구분해서 retCode 생성하기.
+  try {
+    await excel_run(req.file.path);
+    res.json({
+      retCode: "OK",
+      retMsg: `${req.file.filename.replace(/_\d+/, "")} upload successful!`,
+    });
+  } catch (err) {
+    console.log(err);
+    res.json({ retCode: "NG", retMsg: err });
+  }
 });
 
 app.listen(3000, () => {

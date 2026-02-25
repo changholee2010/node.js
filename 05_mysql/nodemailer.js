@@ -1,5 +1,6 @@
 // nodemailer.js
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const gmailConfig = {
   service: "gmail",
@@ -38,4 +39,17 @@ const send = async (data) => {
   });
 };
 
+// send({
+//   from: "leadon@daum.net",
+//   to: "cholee@yedam.ac",
+//   subject: "파일첨부테스트",
+//   html: "<p>파일첨부연습</p>",
+//   attachments: [
+//     {
+//       filename: "딸기.jpg", //파일명.
+//       path: __dirname + "/uploads/" + "딸기.jpg", // 실제파일
+//     },
+//   ],
+// });
+// console.log("main send....");
 module.exports = { send };
