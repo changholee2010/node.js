@@ -3,6 +3,7 @@ const boardService = require("../services/boardService");
 
 const list = async (req, res) => {
   const [rows] = await boardService.getList();
+  console.log("현재로그인정보: ", req.session.user.login_id);
   res.json(rows); // 화면에 출력될 결과.
 };
 

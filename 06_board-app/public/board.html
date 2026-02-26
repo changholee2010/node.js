@@ -106,9 +106,13 @@
         .querySelector("form") //
         .addEventListener("submit", (e) => {
           e.preventDefault();
+          const content = document.querySelector("#content").value;
           const postData = {
             title: document.querySelector("#title").value,
-            content: document.querySelector("#content").value,
+            content: content
+              .split("\n")
+              .map((elem) => `<p>${elem}</p>`)
+              .join(""),
             writerId: document.querySelector("#author").value,
           };
           if (!postData.title || !postData.content || !postData.writerId) {

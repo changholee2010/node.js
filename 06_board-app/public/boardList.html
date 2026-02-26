@@ -1,11 +1,58 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>게시글 목록</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h3>게시글목록</h3>
+    <div class="container">
+      <h3>게시글 목록</h3>
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th scope="col" class="th-num">번호</th>
+            <th scope="col" class="th-title">제목</th>
+            <th scope="col" class="th-writer">작성자</th>
+            <th scope="col" class="th-date">작성일시</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <script src="js/board.js"></script>
+    <script>
+      // 페이지 로딩되면서 데이터를 가지고와서 목록 그리기.
+      fetch("./api/board")
+        .then((resp) => resp.json())
+        .then((data) => {
+          // tr의 상위요소에 insertAdjacentHTML() 함수를 활용.
+          const parent = document.querySelector("tbody");
+          // for .. of 반복문.
+          for (let board of data) {
+            const { board_id, title, name, created_at } = board;
+            const html = `<tr>
+                            <td>${board_id}</td>
+                            <td class="text-left">
+                              <a href="boardDetail.html" data-page="${board_id}">${title}</a>
+                            </td>
+                            <td>${name}</td>
+                            <td>${formatNow(created_at)}</td>
+                          </tr>`;
+            parent.insertAdjacentHTML("beforeend", html);
+          } // end of for.
+          // a 태그의 요소를 가져와서 클릭이벤트.
+          document.querySelectorAll("tbody a").forEach((elem) => {
+            elem.addEventListener("click", (e) => {
+              e.preventDefault(); // 클릭 기본기능 차단.
+              // 클릭한 글번호를 localStorage에 저장.
+              localStorage.setItem("page", e.target.dataset.page);
+              location.href = "boardDetail.html";
+            });
+          });
+        })
+        .catch(console.log);
+    </script>
   </body>
 </html>

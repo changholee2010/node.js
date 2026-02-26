@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>글 상세 보기</title>
+    <link rel="stylesheet" href="detail-style.css" />
+  </head>
+  <body>
+    <div class="detail-container">
+      <div class="detail-header">
+        <span class="post-no">No. 123</span>
+        <h2 class="post-title">bcrypt.hash()의 두 번째 인자, 10의 정체는?</h2>
+        <div class="post-info">
+          <span class="info-item"><strong>작성자:</strong> 관리자</span>
+          <span class="info-item"
+            ><strong>작성일:</strong> 2024-05-20 15:45:12</span
+          >
+        </div>
+      </div>
+
+      <div class="post-content">
+        <!-- 실제 내용은 p 태그나 div로 구성 -->
+        <p>안녕하세요. 오늘은 암호화 함수인 bcrypt에 대해 알아보겠습니다.</p>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-list" onclick="location.href = 'boardList.html'">
+          목록으로
+        </button>
+        <button class="btn btn-add" onclick="location.href = 'board.html'">
+          등록
+        </button>
+        <button class="btn btn-edit">수정</button>
+        <button class="btn btn-delete">삭제</button>
+      </div>
+    </div>
+    <script src="js/board.js"></script>
+    <script>
+      const page = localStorage.getItem("page");
+      // ajax 호출.
+      fetch("./api/board/" + page)
+        .then((resp) => resp.json())
+        .then((data) => {
+          const [board] = data;
+          // 글내용 출력하기.
+          document.querySelector(".post-no").innerHTML = "No." + board.board_id; // 글번호.
+          document.querySelector(".post-title").innerHTML = board.title; // 글제목.
+          // 글내용.
+          document.querySelector(".post-content").innerHTML = board.content;
+          // 작성자.
+          document.querySelector(".info-item").innerHTML =
+            `<strong>작성자:</strong> ${board.name}`;
+          // 작성일시.
+          document.querySelector(".post-info>span:nth-of-type(2)").innerHTML =
+            `<strong>작성일:</strong> ${formatNow(board.created_at)}`;
+        })
+        .catch(console.log);
+    </script>
+  </body>
+</html>

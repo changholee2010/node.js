@@ -1,0 +1,90 @@
+/* 전체 배경 및 중앙 정렬 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: "Pretendard", sans-serif;
+  background-color: #f4f7f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* 로그인 카드 */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+}
+.login-box {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+}
+
+/* 입력창 스타일 */
+.input-group {
+  margin-bottom: 20px;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+.input-group input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* 로그인 버튼 */
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.btn-login:hover {
+  background-color: #0056b3;
+}
+
+/* 하단 링크 */
+.login-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+}
+.login-footer a {
+  color: #888;
+  text-decoration: none;
+  margin: 0 5px;
+}
+.login-footer a:hover {
+  text-decoration: underline;
+}
