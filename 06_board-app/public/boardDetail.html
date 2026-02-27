@@ -52,9 +52,9 @@
           document.querySelector("#member_id").innerHTML = user.member_id;
           document.querySelector("#writer_id").innerHTML = board.writer_id;
           // 비활성화.
-          if (user.member_id != board.writer_id) {
-            document.querySelector(".btn-delete").disabled = true;
-          }
+          // if (user.member_id != board.writer_id) {
+          // document.querySelector(".btn-delete").disabled = true;
+          // }
 
           // 글내용 출력하기.
           document.querySelector("span.login").innerHTML =
@@ -71,6 +71,33 @@
             `<strong>작성일:</strong> ${formatNow(board.created_at)}`;
         })
         .catch(console.log);
+
+      // 삭제버튼 이벤트.
+      document.querySelector(".btn-delete").addEventListener("click", (e) => {
+        // 삭제.
+        const deleteId = document
+          .querySelector("span.post-no")
+          .innerText.replace("No.", "");
+        // ajax호출.
+        fetch("./api/board/" + deleteId, {
+          method: "delete",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        })
+          .then((resp) => resp.json())
+          .then((data) => {
+            if (data.retCode == "OK") {
+              // 성공 후 이동할 페이지 (글목록페이지)
+              alert("[삭제 성공]");
+              location.href = "boardList.html";
+            } else {
+              // 실패 후 에러메세지 (결과를 화면에 출력)
+              alert(`[에러] ${data.retMsg}`);
+            }
+          })
+          .catch(console.log);
+      });
 
       // 수정버튼 이벤트.
       document.querySelector(".btn-edit").addEventListener("click", (e) => {

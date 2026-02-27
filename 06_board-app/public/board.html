@@ -118,6 +118,7 @@
           if (!postData.title || !postData.content || !postData.writerId) {
             return;
           }
+          // ajax 호출.
           fetch("./api/board", {
             method: "post",
             headers: {

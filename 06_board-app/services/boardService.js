@@ -14,5 +14,17 @@ async function getDetail(id) {
 async function create(title, content, writerId) {
   return boardModel.insert(title, content, writerId);
 }
+// 삭제(remove)
+async function remove(board_id, user) {
+  const [rows] = await boardModel.getById(board_id);
+  const board = rows[0];
+  console.log(board);
+  // 권한체크.
+  if (board.writer_id != user.member_id) {
+    return "NO_AUTH";
+  }
 
-module.exports = { getList, getDetail, create };
+  return boardModel.remove(board_id);
+}
+
+module.exports = { getList, getDetail, create, remove };

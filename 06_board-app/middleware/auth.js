@@ -18,8 +18,8 @@ const verifyToken = async (req, res, next) => {
   // 정상처리.
   try {
     const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(token, "secret-token");
-    req.user = decoded;
+    const decoded = jwt.verify(token, "secret-token"); // token -> 원래 값.
+    req.user = decoded; // {member_id, login_id, role}
     next();
   } catch (err) {
     return res.json({ retCode: "NG", retMsg: "토큰 오류." });

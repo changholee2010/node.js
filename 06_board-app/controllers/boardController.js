@@ -36,4 +36,14 @@ const create = async (req, res) => {
   }
 };
 
-module.exports = { list, detail, create };
+// 삭제(remove)
+const remove = async (req, res) => {
+  const { id } = req.params; // /api/board/3
+  const result = await boardService.remove(id, req.user);
+  if (result == "NO_AUTH") {
+    return res.json({ retCode: "NG", retMsg: "권한 없음" });
+  }
+  res.json({ retCode: "OK" });
+};
+
+module.exports = { list, detail, create, remove };
