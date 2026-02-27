@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const authModel = require("../models/memberModel");
 
 // 회원등록.
@@ -23,8 +24,19 @@ async function login(loginId, password) {
   if (!match) {
     return null;
   }
+  // token발행->암호화->반환.
+  const token = jwt.sign(
+    {
+      member_id: user.member_id,
+      login_id: user.login_id,
+      role: user.role,
+    },
+    "secret-token",
+    { expiresIn: "1h" },
+  );
+  console.log(token);
   // 정상.
-  return user; // token
+  return token; // token
 }
 
 module.exports = { signup, login };

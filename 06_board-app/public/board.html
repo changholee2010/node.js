@@ -120,8 +120,14 @@
           }
           fetch("./api/board", {
             method: "post",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(postData),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({
+              title: postData.title,
+              content: postData.content,
+            }),
           })
             .then((resp) => resp.json())
             .then((data) => {

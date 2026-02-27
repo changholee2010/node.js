@@ -8,8 +8,12 @@
   </head>
   <body>
     <div class="detail-container">
+      <!-- 로그인정보 vs. 작성자정보 -->
+      <div id="member_id" style="display: none"></div>
+      <div id="writer_id" style="display: none"></div>
+
       <div class="detail-header">
-        <span class="post-no">No. 123</span>
+        <span class="post-no">No. 123</span><span class="login"></span>
         <h2 class="post-title">bcrypt.hash()의 두 번째 인자, 10의 정체는?</h2>
         <div class="post-info">
           <span class="info-item"><strong>작성자:</strong> 관리자</span>
@@ -41,9 +45,20 @@
       // ajax 호출.
       fetch("./api/board/" + page)
         .then((resp) => resp.json())
-        .then((data) => {
+        .then(({ user, data }) => {
+          console.log(user); // {user: {...}, data: [{...}]}
           const [board] = data;
+          // member_id, writer_id 값 지정.
+          document.querySelector("#member_id").innerHTML = user.member_id;
+          document.querySelector("#writer_id").innerHTML = board.writer_id;
+          // 비활성화.
+          if (user.member_id != board.writer_id) {
+            document.querySelector(".btn-delete").disabled = true;
+          }
+
           // 글내용 출력하기.
+          document.querySelector("span.login").innerHTML =
+            `id: ${user.login_id}(${user.name})`;
           document.querySelector(".post-no").innerHTML = "No." + board.board_id; // 글번호.
           document.querySelector(".post-title").innerHTML = board.title; // 글제목.
           // 글내용.
@@ -56,6 +71,19 @@
             `<strong>작성일:</strong> ${formatNow(board.created_at)}`;
         })
         .catch(console.log);
+
+      // 수정버튼 이벤트.
+      document.querySelector(".btn-edit").addEventListener("click", (e) => {
+        // 권한 체크.
+        const mid = document.querySelector("#member_id").innerHTML;
+        const wid = document.querySelector("#writer_id").innerHTML;
+        if (mid == wid) {
+          alert("수정페이지로 이동합니다");
+        } else {
+          alert("권한을 확인하세요");
+          return;
+        }
+      });
     </script>
   </body>
 </html>

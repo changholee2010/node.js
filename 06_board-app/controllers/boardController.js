@@ -3,7 +3,8 @@ const boardService = require("../services/boardService");
 
 const list = async (req, res) => {
   const [rows] = await boardService.getList();
-  console.log("현재로그인정보: ", req.session.user.login_id);
+
+  // console.log("현재로그인정보: ", req.session.user.login_id);
   res.json(rows); // 화면에 출력될 결과.
 };
 
@@ -11,12 +12,19 @@ const list = async (req, res) => {
 const detail = async (req, res) => {
   const { id } = req.params;
   const [rows] = await boardService.getDetail(id);
-  res.json(rows);
+  // 현재 로그인 정보(login_id, name)
+  const { login_id, name, member_id } = req.session.user || {
+    login_id: "",
+    name: "",
+    member_id: "",
+  };
+  res.json({ user: { login_id, name, member_id }, data: rows });
 };
 
 // 등록(create)
 const create = async (req, res) => {
-  const { title, content, writerId } = req.body;
+  const { title, content } = req.body;
+  const writerId = req.user.member_id; // token 저장된 값.
   // 성공/실패 구분.
   try {
     await boardService.create(title, content, writerId);
